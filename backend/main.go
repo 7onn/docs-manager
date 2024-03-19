@@ -22,7 +22,7 @@ func main() {
 		Log("FATAL", fmt.Sprintf("failed to connect database %s", err.Error()))
 		os.Exit(1)
 	}
-	db.AutoMigrate(&UserModel{})
+	db.AutoMigrate(&UserModel{}, &DocumentModel{}, &DocumentCommentModel{})
 
 	Log("INFO", "Running server on :7777")
 	err = http.ListenAndServe(":7777", DocsManagerServer{db})

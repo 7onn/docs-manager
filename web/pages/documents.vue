@@ -39,23 +39,24 @@ export default {
   },
   methods: {
     fetchDocuments() {
-      this.documents = [
-        { id: "1", name: "resume1", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "2", name: "resume2", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "3", name: "resume3", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "4", name: "resume4", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "5", name: "resume5", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "1", name: "resume1", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "2", name: "resume2", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "3", name: "resume3", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "4", name: "resume4", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "5", name: "resume5", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "1", name: "resume1", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "2", name: "resume2", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "3", name: "resume3", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "4", name: "resume4", url: "https://www.7onn.dev./resume.pdf" },
-        { id: "5", name: "resume5", url: "https://www.7onn.dev./resume.pdf" },
-      ]
+
+      $fetch
+        (useRuntimeConfig().public.apiUrl + "docs", {
+          method: 'GET',
+          headers: { "Content-Type": "application/json" }
+        })
+        .then(data => {
+          console.log(data)
+          this.documents = JSON.stringify(data)
+        })
+        .catch(error => {
+          console.error('Error pulling docs:', error);
+        })
+
+      // this.documents = [
+      //   { id: "1", name: "resume1", url: "https://www.7onn.dev./resume.pdf" },
+      //   { id: "2", name: "resume2", url: "https://www.7onn.dev./resume.pdf" },
+      // ]
     }
   }
 };

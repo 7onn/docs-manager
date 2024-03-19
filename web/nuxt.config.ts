@@ -6,5 +6,10 @@ export default defineNuxtConfig({
       public: {
         apiUrl: 'http://localhost:7777/'
       }
-    }
+    },
+    routeRules: {
+      '/**': {
+          cors: true
+       },
+  },
 })

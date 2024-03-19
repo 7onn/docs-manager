@@ -1,6 +1,10 @@
 <template>
   <div>
-    <h1>Welcome to the homepage</h1>
+    <h1>Upload file</h1>
+    <div>
+      <input type="file" @change="handleFileUpload">
+      <button @click="uploadFile">Upload</button>
+    </div>
   </div>
 </template>
 
@@ -12,7 +16,7 @@ definePageMeta({
 export default {
   data() {
     return {
-      a: []
+      file: null
     };
   },
   created() {
@@ -22,5 +26,30 @@ export default {
       this.$router.push('/login');
     }
   },
+  methods: {
+    handleFileUpload(event) {
+      this.file = event.target.files[0];
+    },
+    uploadFile() {
+      if (this.file) {
+        let formData = new FormData();
+        console.log(this.file)
+        formData.append('file', this.file);
+
+        $fetch
+          (useRuntimeConfig().public.apiUrl + "upload", {
+            method: 'POST',
+            body: formData,
+          })
+          .then(data => {
+            console.log(data)
+            console.log('File uploaded:', this.file);
+          })
+          .catch(error => {
+            console.error('Error uploading file:', error);
+          })
+      }
+    }
+  }
 }
 </script>

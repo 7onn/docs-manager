@@ -1,9 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -16,38 +13,36 @@ type DocsManagerServer struct {
 func (svr DocsManagerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	switch r.URL.Path {
-	case "/signup":
-		payload, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			Log("ERROR", fmt.Sprintf("error parsing signup payload %s", err.Error()))
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-		}
-		user := &UserModel{}
-		json.Unmarshal(payload, user)
-
-		u, _ := json.MarshalIndent(user, "", "  ")
-		fmt.Println(fmt.Sprintf("%s", u))
-
-		// svr.db.Create()
+	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "login")
+		return
+	}
+
+	switch r.URL.Path {
 	case "/":
 		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "ok")
 		return
-	case "/docs":
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "docs")
+
+	case "/signup":
+		svr.RoutePostSignUp(w, r)
 		return
 
 	case "/login":
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "login")
+		svr.RoutePostLogin(w, r)
+		return
+
+	case "/upload":
+		svr.RoutePostUploadDocument(w, r)
+		return
+
+	case "/docs":
+		svr.RouteGetDocuments(w, r)
+		return
+
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		return
