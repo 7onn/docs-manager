@@ -61,7 +61,6 @@ export default {
           headers: { "Content-Type": "application/json" }
         })
         .then(data => {
-          console.log(data)
           useCookie('jwt').value = JSON.stringify(data)
           this.$router.push('/documents');
         })
@@ -80,7 +79,6 @@ export default {
           headers: { "Content-Type": "application/json" }
         })
         .then(data => {
-          console.log(data)
           useCookie('jwt').value = JSON.stringify(data)
           this.$router.push('/documents');
         })

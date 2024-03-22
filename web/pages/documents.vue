@@ -29,7 +29,7 @@ export default {
     };
   },
   created() {
-    const user = JSON.parse(useCookie('jwt').value || false)
+    const user = useCookie('jwt').value
     console.log(user)
     if (!user) {
       this.$router.push('/login');
@@ -39,11 +39,13 @@ export default {
   },
   methods: {
     fetchDocuments() {
-
       $fetch
         (useRuntimeConfig().public.apiUrl + "docs", {
           method: 'GET',
-          headers: { "Content-Type": "application/json" }
+          headers: { 
+            "Content-Type": "application/json", 
+            "Authorization": useCookie('jwt').value || "" 
+          },
         })
         .then(data => {
           console.log(data)

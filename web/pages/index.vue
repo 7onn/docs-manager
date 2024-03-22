@@ -20,7 +20,7 @@ export default {
     };
   },
   created() {
-    const user = JSON.parse(useCookie('jwt').value || false)
+    const user = useCookie('jwt').value
     console.log(user)
     if (!user) {
       this.$router.push('/login');
@@ -40,6 +40,9 @@ export default {
           (useRuntimeConfig().public.apiUrl + "upload", {
             method: 'POST',
             body: formData,
+            headers: {
+              "Authorization": useCookie('jwt').value || ""
+            }
           })
           .then(data => {
             console.log(data)
