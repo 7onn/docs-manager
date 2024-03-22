@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -19,6 +18,7 @@ type UserModel struct {
 	Name        string          `json:"name"`
 	Email       string          `json:"email" gorm:"unique" gorm:"index"`
 	Password    string          `json:"-"`
+	JWT         string          `json:"-"`
 	CreatedAt   time.Time       `json:"-"`
 	UpdatedAt   time.Time       `json:"-"`
 	ActivatedAt sql.NullTime    `json:"-"`
@@ -58,28 +58,4 @@ func (u *UserModel) fromJson(data []byte) error {
 		return err
 	}
 	return nil
-}
-
-func signUpUser(payload []byte, db *gorm.DB) (*UserModel, error) {
-	user := &UserModel{}
-	json.Unmarshal(payload, user)
-	db.Create(user)
-	return user, nil
-}
-
-func loginUser(payload []byte, db *gorm.DB) (*UserModel, error) {
-	u := &UserModel{}
-	u.fromJson(payload)
-	pwd := u.Password
-
-	db.First(u, "email = ?", u.Email)
-	if u.UUID.String() == "" {
-		return nil, errors.New("Unexistent user")
-	}
-
-	if !u.CheckPasswordHash(pwd) {
-		return nil, errors.New("Wrong password")
-	}
-
-	return u, nil
 }
