@@ -15,22 +15,24 @@ import (
 
 type DocumentModel struct {
 	gorm.Model
-	ID        uint                   `json:"id"`
-	UserID    uint                   `json:"userId"`
-	User      UserModel              `gorm:"foreignKey:UserID;references:ID"`
-	UUID      uuid.UUID              `json:"uuid" gorm:"unique" gorm:"index"`
-	Name      string                 `json:"name"`
-	URL       string                 `json:"url"`
-	CreatedAt time.Time              `json:"-"`
-	UpdatedAt time.Time              `json:"-"`
-	Comments  []DocumentCommentModel `gorm:"foreignKey:DocumentID"`
+	ID     uint      `json:"id"`
+	UserID uint      `json:"userId"`
+	User   UserModel `json:"-" gorm:"foreignKey:UserID;references:ID"`
+	UUID   uuid.UUID `json:"uuid" gorm:"unique" gorm:"index"`
+	Name   string    `json:"name"`
+	URL    string    `json:"url"`
+	// CreatedAt time.Time              `json:"-"`
+	// UpdatedAt time.Time              `json:"-"`
+	Comments []DocumentCommentModel `gorm:"foreignKey:DocumentID"`
 }
 
 type DocumentCommentModel struct {
 	gorm.Model
 	ID         uint
 	DocumentID uint          `json:"docId"`
+	UserID     uint          `json:"userId"`
 	Document   DocumentModel `gorm:"foreignKey:DocumentID;references:ID"`
+	User       UserModel     `gorm:"foreignKey:DocumentID;references:ID"`
 	Message    string        `json:"message"`
 	CreatedAt  time.Time     `json:"-"`
 	UpdatedAt  time.Time     `json:"-"`
@@ -52,7 +54,7 @@ func (d *DocumentModel) toJson() (string, error) {
 func uploadDocument(doc *DocumentModel, file multipart.File, fileHeader *multipart.FileHeader, db *gorm.DB) error {
 	doc.Name = fileHeader.Filename
 	db.Create(doc)
-	doc.URL = fmt.Sprintf("http://localhost:7777/docs/%s", doc.UUID) // todo: use env var as host name
+	doc.URL = fmt.Sprintf("http://localhost:7777/doc?uuid=%s", doc.UUID) // todo: use env var as host name
 	db.Updates(doc)
 
 	dst, err := os.Create(fmt.Sprintf("docs/%s%s", doc.UUID, filepath.Ext(fileHeader.Filename)))

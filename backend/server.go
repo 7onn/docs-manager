@@ -28,6 +28,7 @@ func (svr DocsManagerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(r.URL.Path)
 	switch r.URL.Path {
 	case "/":
 		w.WriteHeader(http.StatusOK)
@@ -55,6 +56,13 @@ func (svr DocsManagerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		svr.RouteGetDocuments(w, r)
 		return
 
+	case "/doc":
+		// if !validJWT(w, r) {
+		// 	return
+		// }
+		svr.RouteGetDocument(w, r)
+		return
+
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -80,10 +88,15 @@ func validJWT(w http.ResponseWriter, r *http.Request) bool {
 		fmt.Println(claims.UUID, claims.StandardClaims.ExpiresAt)
 	}
 
-	fmt.Println(err, token.Signature, token.Claims, token.Header, token.Method)
-
 	if !token.Valid {
-		w.WriteHeader(http.StatusBadRequest)
+		cookie := http.Cookie{}
+		cookie.Name = "jwt"
+		cookie.Value = ""
+		cookie.Secure = false
+		cookie.HttpOnly = true
+		cookie.Path = "/"
+		http.SetCookie(w, &cookie)
+		w.WriteHeader(http.StatusUnauthorized)
 		return false
 	}
 	return true
@@ -153,6 +166,25 @@ func (svr DocsManagerServer) RouteGetDocuments(w http.ResponseWriter, r *http.Re
 	w.Header().Set("Content-Type", "application/json")
 	j, _ := json.Marshal(docs)
 	fmt.Fprintf(w, fmt.Sprintf("%s", j))
+}
+
+func (svr DocsManagerServer) RouteGetDocument(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	qs := r.URL.Query()
+	docUUID := qs["uuid"]
+	fmt.Println(docUUID[0])
+	if docUUID == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/pdf")
+	http.ServeFile(w, r, fmt.Sprintf("docs/%s.pdf", docUUID[0]))
 }
 
 func (svr DocsManagerServer) RoutePostUploadDocument(w http.ResponseWriter, r *http.Request) {

@@ -2,15 +2,17 @@
   <div>
     <nav>
       <!-- <router-link to="/">Home</router-link> | -->
-      <router-link to="/documents">Documents</router-link>
+      <!-- <router-link to="/documents">Documents</router-link> -->
     </nav>
     <router-view />
     <div>
       <h2>Documents</h2>
       <ul style="display: flex; flex-wrap: wrap;">
-        <li v-for="document in documents" :key="document.id" style="margin-right: 10px;">
-          <a :href="document.url" target="_blank">{{ document.name }}</a>
-          <embed :src="document.url" width="300px" height="600px" />
+        <li v-for="document, index in documents" :key="index" style="margin-right: 10px;">
+          <!-- <p>{{ document.uuid  }}</p> -->
+          <p><a :href="document.url" target="_blank">{{ document.name }}</a></p>
+          <embed :src="document.url" width="200px" height="300px" />
+          <!-- <embed src="http://localhost:7777/doc?uuid=5df63112-4050-419c-9913-ff13a6e4b80e" width="300px" height="600px" /> -->
         </li>
       </ul>
     </div>
@@ -49,7 +51,7 @@ export default {
         })
         .then(data => {
           console.log(data)
-          this.documents = JSON.stringify(data)
+          this.documents = JSON.parse(data)
         })
         .catch(error => {
           console.error('Error pulling docs:', error);
