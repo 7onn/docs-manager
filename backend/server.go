@@ -72,7 +72,12 @@ func (svr DocsManagerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func validJWT(w http.ResponseWriter, r *http.Request) bool {
-	jwtToken := r.Header["Authorization"][0]
+	auth := r.Header["Authorization"]
+	if auth == nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return false
+	}
+	jwtToken := auth[0]
 	jwtToken, err := url.QueryUnescape(jwtToken)
 	if err != nil {
 		return false
