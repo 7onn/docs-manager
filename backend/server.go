@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/golang-jwt/jwt"
 	"gorm.io/gorm"
@@ -83,14 +84,19 @@ func validJWT(w http.ResponseWriter, r *http.Request) bool {
 	}
 	claims := &UserJWTClaims{}
 	token, err := jwt.ParseWithClaims(jwtToken, claims, func(token *jwt.Token) (interface{}, error) {
+		jwtSecret := os.Getenv("JWT_SECRET")
+		if jwtSecret == "" {
+			jwtSecret = "dev"
+		}
 		return jwtSecret, nil
 	})
 	if err != nil {
 		return false
 	}
-	if claims, ok := token.Claims.(*UserJWTClaims); ok {
-		fmt.Println(claims.UUID, claims.StandardClaims.ExpiresAt)
-	}
+
+	// if claims, ok := token.Claims.(*UserJWTClaims); ok {
+
+	// }
 
 	if !token.Valid {
 		cookie := http.Cookie{}
@@ -180,13 +186,11 @@ func (svr DocsManagerServer) RouteGetDocument(w http.ResponseWriter, r *http.Req
 
 	qs := r.URL.Query()
 	docUUID := qs["uuid"]
-	fmt.Println(docUUID[0])
 	if docUUID == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/pdf")
 	http.ServeFile(w, r, fmt.Sprintf("docs/%s.pdf", docUUID[0]))
 }
@@ -212,7 +216,7 @@ func (svr DocsManagerServer) RoutePostUploadDocument(w http.ResponseWriter, r *h
 	defer file.Close()
 
 	doc := &DocumentModel{}
-	doc.UserID = 1 // todo: get user from jwt cookie
+	doc.UserID = 1 // todo: get user from jwt
 
 	err = uploadDocument(doc, file, handler, svr.db)
 	if err != nil {

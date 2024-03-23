@@ -16,15 +16,20 @@ func main() {
 		Log("INFO", ".env file not found")
 	}
 
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{}) // todo: use stateful db
 	if err != nil {
 		Log("FATAL", fmt.Sprintf("failed to connect database %s", err.Error()))
 		os.Exit(1)
 	}
 	db.AutoMigrate(&UserModel{}, &DocumentModel{}, &DocumentCommentModel{})
 
-	Log("INFO", "Running server on :7777")
-	err = http.ListenAndServe(":7777", DocsManagerServer{db})
+	p := os.Getenv("SERVER_PORT")
+	if p == "" {
+		p = "7777"
+	}
+
+	Log("INFO", fmt.Sprintf("Running server on :%s", p))
+	err = http.ListenAndServe(fmt.Sprintf(":%s", p), DocsManagerServer{db})
 	if err != nil {
 		Log("FATAL", fmt.Sprintf("%s", err.Error()))
 		os.Exit(1)

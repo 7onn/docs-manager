@@ -20,7 +20,6 @@ type DocumentModel struct {
 	User   UserModel `json:"-" gorm:"foreignKey:UserID;references:ID"`
 	UUID   uuid.UUID `json:"uuid" gorm:"unique" gorm:"index"`
 	Name   string    `json:"name"`
-	URL    string    `json:"url"`
 	// CreatedAt time.Time              `json:"-"`
 	// UpdatedAt time.Time              `json:"-"`
 	Comments []DocumentCommentModel `gorm:"foreignKey:DocumentID"`
@@ -54,10 +53,8 @@ func (d *DocumentModel) toJson() (string, error) {
 func uploadDocument(doc *DocumentModel, file multipart.File, fileHeader *multipart.FileHeader, db *gorm.DB) error {
 	doc.Name = fileHeader.Filename
 	db.Create(doc)
-	doc.URL = fmt.Sprintf("http://localhost:7777/doc?uuid=%s", doc.UUID) // todo: use env var as host name
-	db.Updates(doc)
 
-	dst, err := os.Create(fmt.Sprintf("docs/%s%s", doc.UUID, filepath.Ext(fileHeader.Filename)))
+	dst, err := os.Create(fmt.Sprintf("docs/%s%s", doc.UUID, filepath.Ext(fileHeader.Filename))) // todo: setup volume on ./docs
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -15,8 +16,6 @@ type UserJWTClaims struct {
 	jwt.StandardClaims
 }
 
-var jwtSecret = []byte("dev") //todo: use jwt secret from env
-
 func (u *UserModel) setJWT() (string, error) {
 	expirationTime := time.Now().Add(15 * time.Minute)
 
@@ -27,6 +26,10 @@ func (u *UserModel) setJWT() (string, error) {
 		},
 	})
 
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "dev"
+	}
 	s, err := t.SignedString(jwtSecret)
 	if err != nil {
 		Log("ERROR", fmt.Sprintf("setJWT - %s", err.Error()))
@@ -34,7 +37,6 @@ func (u *UserModel) setJWT() (string, error) {
 	}
 
 	u.JWT = s
-	fmt.Println(s)
 	return s, nil
 }
 
