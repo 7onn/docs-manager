@@ -13,8 +13,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		Log("FATAL", "Error loading .env file")
-		os.Exit(1)
+		Log("INFO", ".env file not found")
 	}
 
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
