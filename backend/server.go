@@ -28,7 +28,6 @@ func (svr DocsManagerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(r.URL.Path)
 	switch r.URL.Path {
 	case "/":
 		w.WriteHeader(http.StatusOK)
