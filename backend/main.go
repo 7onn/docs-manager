@@ -28,7 +28,7 @@ func main() {
 		mux: http.NewServeMux(),
 	}
 
-	svr.mux.HandleFunc("/", svr.HomeRoute())
+	svr.mux.HandleFunc("/", verifyJWT(svr.HomeRoute()))
 	svr.mux.HandleFunc("/healthz", svr.HealthCheckRoute())
 	svr.mux.HandleFunc("/signup", svr.SignUpRoute())
 	svr.mux.HandleFunc("/login", svr.LoginRoute())

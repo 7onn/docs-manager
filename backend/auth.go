@@ -100,7 +100,7 @@ func verifyJWT(next http.HandlerFunc) http.HandlerFunc {
 			return []byte(jwtSecret), nil
 		})
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 

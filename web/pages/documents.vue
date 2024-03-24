@@ -1,8 +1,14 @@
 <template>
   <div>
     <nav>
-      <!-- <router-link to="/">Home</router-link> | -->
-      <!-- <router-link to="/documents">Documents</router-link> -->
+      <ul>
+        <li>
+          <NuxtLink to="/">Home</NuxtLink>
+        </li>
+        <li>
+          <NuxtLink to="/documents">Documents</NuxtLink>
+        </li>
+      </ul>
     </nav>
     <router-view />
     <div>
@@ -29,12 +35,27 @@ export default {
     };
   },
   created() {
-    const user = useCookie('jwt').value
-    console.log(user)
-    if (!user) {
+    const jwt = useCookie('jwt').value
+    if (!jwt) {
       this.$router.push('/login');
+      return
     } else {
-      this.fetchDocuments();
+      $fetch
+        (useRuntimeConfig().public.apiUrl, {
+          method: 'GET',
+          headers: {
+            "Authorization": jwt || ""
+          }
+        })
+        .then(() => {
+          this.fetchDocuments();
+        })
+        .catch(err => {
+          if (err.response.status === 401) {
+            useCookie('jwt').value = ""
+            this.$router.push('/login');
+          }
+        })
     }
   },
   methods: {
@@ -42,9 +63,9 @@ export default {
       $fetch
         (useRuntimeConfig().public.apiUrl + "docs", {
           method: 'GET',
-          headers: { 
-            "Content-Type": "application/json", 
-            "Authorization": useCookie('jwt').value || "" 
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": useCookie('jwt').value || ""
           },
         })
         .then(data => {
@@ -55,8 +76,12 @@ export default {
             }
           }
         })
-        .catch(error => {
-          console.error('Error pulling docs:', error);
+        .catch(err => {
+          console.error('Error pulling docs:', err);
+          if (err.response.status === 401) {
+            useCookie('jwt').value = ""
+            this.$router.push('/login');
+          }
         })
     }
   }
