@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -19,8 +18,6 @@ type UserModel struct {
 	Email       string          `json:"email" gorm:"unique" gorm:"index"`
 	Password    string          `json:"-"`
 	JWT         string          `json:"-"`
-	CreatedAt   time.Time       `json:"-"`
-	UpdatedAt   time.Time       `json:"-"`
 	ActivatedAt sql.NullTime    `json:"-"`
 	Documents   []DocumentModel `gorm:"foreignKey:UserID"`
 }

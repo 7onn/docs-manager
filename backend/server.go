@@ -14,6 +14,24 @@ type DocsManagerServer struct {
 	mux *http.ServeMux
 }
 
+func (svr DocsManagerServer) HomeRoute() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("to on"))
+	}
+}
+
+func (svr DocsManagerServer) HealthCheckRoute() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		u := UserModel{}
+		test := svr.db.First(&u)
+		if test.Error != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Write([]byte("to on"))
+	}
+}
+
 func (svr DocsManagerServer) SignUpRoute() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -153,7 +171,7 @@ func (svr DocsManagerServer) DocumentRoute() http.HandlerFunc {
 	}
 }
 
-func withCORS(h http.Handler) http.Handler {
+func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -164,6 +182,6 @@ func withCORS(h http.Handler) http.Handler {
 			return
 		}
 
-		h.ServeHTTP(w, r)
+		next.ServeHTTP(w, r)
 	})
 }

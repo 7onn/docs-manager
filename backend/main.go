@@ -23,38 +23,23 @@ func main() {
 	}
 	db.AutoMigrate(&UserModel{}, &DocumentModel{}, &DocumentCommentModel{})
 
-	p := os.Getenv("SERVER_PORT")
-	if p == "" {
-		p = "7777"
-	}
-
 	svr := &DocsManagerServer{
 		db:  db,
 		mux: http.NewServeMux(),
 	}
 
-	svr.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		return
-	})
-
-	svr.mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		u := UserModel{}
-		test := db.First(&u)
-		if test.Error != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		return
-	})
-
+	svr.mux.HandleFunc("/", svr.HomeRoute())
+	svr.mux.HandleFunc("/healthz", svr.HealthCheckRoute())
 	svr.mux.HandleFunc("/signup", svr.SignUpRoute())
 	svr.mux.HandleFunc("/login", svr.LoginRoute())
 	svr.mux.HandleFunc("/upload", verifyJWT(svr.UploadRoute()))
 	svr.mux.HandleFunc("/docs", verifyJWT(svr.DocumentsRoute()))
 	svr.mux.HandleFunc("/doc", svr.DocumentRoute())
 
+	p := os.Getenv("SERVER_PORT")
+	if p == "" {
+		p = "7777"
+	}
 	Log("INFO", fmt.Sprintf("Running server on :%s", p))
 	err = http.ListenAndServe(fmt.Sprintf(":%s", p), withCORS(svr.mux))
 	if err != nil {
