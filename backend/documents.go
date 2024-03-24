@@ -15,13 +15,11 @@ import (
 
 type DocumentModel struct {
 	gorm.Model
-	ID     uint      `json:"id"`
-	UserID uint      `json:"userId"`
-	User   UserModel `json:"-" gorm:"foreignKey:UserID;references:ID"`
-	UUID   uuid.UUID `json:"uuid" gorm:"unique" gorm:"index"`
-	Name   string    `json:"name"`
-	// CreatedAt time.Time              `json:"-"`
-	// UpdatedAt time.Time              `json:"-"`
+	ID       uint                   `json:"id"`
+	UserID   uint                   `json:"userId"`
+	User     UserModel              `json:"-" gorm:"foreignKey:UserID;references:ID"`
+	UUID     uuid.UUID              `json:"uuid" gorm:"unique" gorm:"index"`
+	Name     string                 `json:"name"`
 	Comments []DocumentCommentModel `gorm:"foreignKey:DocumentID"`
 }
 
